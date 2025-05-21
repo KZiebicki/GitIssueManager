@@ -16,6 +16,8 @@ namespace GitIssueManager
 
             // Add services to the container.
 
+            //TODO: Logs (Serilog)
+
             builder.Services.AddControllers()
             .AddJsonOptions(o =>
              {
