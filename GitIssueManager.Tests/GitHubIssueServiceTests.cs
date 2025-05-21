@@ -1,13 +1,10 @@
 ﻿using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using GitIssueManager.Core.Models;
 using GitIssueManager.Core.Services;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using Moq.Protected;
-using Xunit;
 
 namespace GitIssueManager.Tests
 {
@@ -16,6 +13,7 @@ namespace GitIssueManager.Tests
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
         private readonly HttpClient _httpClient;
         private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
+        private readonly IConfigurationRoot _configuration;
 
         public GitHubIssueServiceTests()
         {
@@ -40,13 +38,15 @@ namespace GitIssueManager.Tests
             var context = new DefaultHttpContext();
             context.Request.Headers["Authorization"] = "Bearer dummy-token";
             _httpContextAccessorMock.Setup(_ => _.HttpContext).Returns(context);
+
+            _configuration = new ConfigurationBuilder().Build();
         }
 
         [Fact]
         public async Task CreateIssueAsync_SendsCorrectRequest()
         {
             // Arrange
-            var service = new GitHubIssueService(_httpClient, _httpContextAccessorMock.Object);
+            var service = new GitHubIssueService(_httpClient, _httpContextAccessorMock.Object, _configuration);
 
             var request = new IssueRequestModel
             {
