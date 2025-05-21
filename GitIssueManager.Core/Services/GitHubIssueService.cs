@@ -3,6 +3,7 @@ using System.Text;
 using GitIssueManager.Core.Services.Interfaces;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
+using GitIssueManager.Core.Models;
 
 namespace GitIssueManager.Core.Services
 {
@@ -21,41 +22,41 @@ namespace GitIssueManager.Core.Services
             if (!string.IsNullOrEmpty(authHeader))
             {
                 _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GitIssueManager", "1.0"));
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authHeader.Replace("Bearer ", ""));//TODO: Bearer is case sensitive. Need fix
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authHeader.Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase));
             }
         }
 
-        public async Task CreateIssueAsync(string repo, string title, string description) //TODO: CHANGE TO IssueRequestModel
+        public async Task CreateIssueAsync(IssueRequestModel requestModel)
         {
-            var url = $"https://api.github.com/repos/{repo}/issues";
+            string url = $"https://api.github.com/repos/{requestModel.Repository}/issues";
 
             var content = new
             {
-                title,
-                body = description
+                title = requestModel.Title,
+                body = requestModel.Description
             };
 
             var response = await _httpClient.PostAsync(url, AsJson(content));
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task UpdateIssueAsync(string repo, int issueNumber, string title, string description)
+        public async Task UpdateIssueAsync(int issueNumber, IssueRequestModel requestModel)
         {
-            var url = $"https://api.github.com/repos/{repo}/issues/{issueNumber}";
+            string url = $"https://api.github.com/repos/{requestModel.Repository}/issues/{issueNumber}";
 
             var content = new
             {
-                title,
-                body = description
+                title = requestModel.Title,
+                body = requestModel.Description
             };
 
             var response = await _httpClient.PatchAsync(url, AsJson(content));
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task CloseIssueAsync(string repo, int issueNumber)
+        public async Task CloseIssueAsync(int issueNumber, IssueRequestModel requestModel)
         {
-            var url = $"https://api.github.com/repos/{repo}/issues/{issueNumber}";
+            string url = $"https://api.github.com/repos/{requestModel.Repository}/issues/{issueNumber}";
 
             var content = new
             {

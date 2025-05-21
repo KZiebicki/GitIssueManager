@@ -18,21 +18,21 @@ namespace GitIssueManager.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateIssue([FromBody] IssueRequestModel request)
         {
-            await _issueFactory.GetService(request.Provider).CreateIssueAsync(request.Repository, request.Title, request.Description);
+            await _issueFactory.GetService(request.Provider).CreateIssueAsync(request);
             return Ok("Issue created."); //TODO: IMPROVE THE RESPONSE
         }
 
         [HttpPut("{id:int}")] //TODO: Check the verb. PUT For updating?
         public async Task<IActionResult> UpdateIssue(int id, [FromBody] IssueRequestModel request)
         {
-            await _issueFactory.GetService(request.Provider).UpdateIssueAsync(request.Repository, id, request.Title, request.Description);
+            await _issueFactory.GetService(request.Provider).UpdateIssueAsync(id, request);
             return Ok("Issue updated."); //TODO: IMPROVE THE RESPONSE
         }
 
         [HttpPatch("{id:int}/close")] //TODO: Check the verb. PATCH For closing?
         public async Task<IActionResult> CloseIssue(int id, [FromBody] IssueRequestModel request)
         {
-            await _issueFactory.GetService(request.Provider).CloseIssueAsync(request.Repository, id);
+            await _issueFactory.GetService(request.Provider).CloseIssueAsync(id, request);
             return Ok("Issue closed."); //TODO: IMPROVE THE RESPONSE
         }
     }

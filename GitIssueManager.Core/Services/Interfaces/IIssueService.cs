@@ -1,9 +1,11 @@
-﻿namespace GitIssueManager.Core.Services.Interfaces
+﻿using GitIssueManager.Core.Models;
+
+namespace GitIssueManager.Core.Services.Interfaces
 {
     public interface IIssueService
     {
-        Task CreateIssueAsync(string repo, string title, string description);
-        Task UpdateIssueAsync(string repo, int issueNumber, string title, string description);
-        Task CloseIssueAsync(string repo, int issueNumber);
+        Task CreateIssueAsync(IssueRequestModel requestModel);
+        Task UpdateIssueAsync(int issueNumber, IssueRequestModel requestModel);
+        Task CloseIssueAsync(int issueNumber, IssueRequestModel requestModel);
     }
 }

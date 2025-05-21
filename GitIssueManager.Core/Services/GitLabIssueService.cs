@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text;
 using GitIssueManager.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
+using GitIssueManager.Core.Models;
 
 namespace GitIssueManager.Core.Services
 {
@@ -21,41 +22,41 @@ namespace GitIssueManager.Core.Services
             if (!string.IsNullOrEmpty(authHeader))
             {
                 _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GitIssueManager", "1.0"));
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authHeader.Replace("Bearer ", ""));//TODO: Bearer is case sensitive. Need fix
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authHeader.Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase));
             }
         }
 
-        public async Task CreateIssueAsync(string repo, string title, string description)
+        public async Task CreateIssueAsync(IssueRequestModel requestModel)
         {
-            var url = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(repo)}/issues";
+            string url = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(requestModel.Repository)}/issues";
 
             var content = new
             {
-                title,
-                description
+                title = requestModel.Title,
+                description = requestModel.Description
             };
 
             var response = await _httpClient.PostAsync(url, AsJson(content));
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task UpdateIssueAsync(string repo, int issueNumber, string title, string description)
+        public async Task UpdateIssueAsync(int issueNumber, IssueRequestModel requestModel)
         {
-            var url = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(repo)}/issues/{issueNumber}";
+            string url = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(requestModel.Repository)}/issues/{issueNumber}";
 
             var content = new
             {
-                title,
-                description
+                title = requestModel.Title,
+                description = requestModel.Description
             };
 
             var response = await _httpClient.PutAsync(url, AsJson(content));
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task CloseIssueAsync(string repo, int issueNumber)
+        public async Task CloseIssueAsync(int issueNumber, IssueRequestModel requestModel)
         {
-            var url = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(repo)}/issues/{issueNumber}";
+            string url = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(requestModel.Repository)}/issues/{issueNumber}";
 
             var content = new
             {

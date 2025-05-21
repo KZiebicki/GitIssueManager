@@ -1,9 +1,10 @@
-using GitIssueManager.Core.Services.Interfaces;
 using GitIssueManager.Core.Services;
 using Microsoft.OpenApi.Models;
 using GitIssueManager.Api;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using GitIssueManager.Core.Factories.Interfaces;
+using GitIssueManager.Core.Factories;
 
 namespace GitIssueManager
 {
@@ -23,7 +24,6 @@ namespace GitIssueManager
 
             builder.Services.AddSwaggerGen(c =>
             {
-                //WIP: MAKE IT WORK WITH AUTHORIZATION
                 c.SwaggerDoc("v1", new OpenApiInfo{ Title = "Git Issue Manager API", Version = "v1" });
                 c.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
                 {
