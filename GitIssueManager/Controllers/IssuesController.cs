@@ -23,14 +23,14 @@ namespace GitIssueManager.Api.Controllers
             return Ok("Issue created."); //TODO: IMPROVE THE RESPONSE
         }
 
-        [HttpPut("{id:int}")] //TODO: Check the verb. PUT For updating?
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateIssue(int id, [FromBody] IssueRequestModel request)
         {
             await _issueFactory.GetService(request.Provider).UpdateIssueAsync(id, request);
             return Ok("Issue updated."); //TODO: IMPROVE THE RESPONSE
         }
 
-        [HttpPatch("{id:int}/close")] //TODO: Check the verb. PATCH For closing?
+        [HttpPatch("{id:int}/close")]
         public async Task<IActionResult> CloseIssue(int id, [FromBody] IssueRequestModel request)
         {
             await _issueFactory.GetService(request.Provider).CloseIssueAsync(id, request);

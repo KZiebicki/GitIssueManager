@@ -1,6 +1,53 @@
-@GitIssueManager_HostAddress = http://localhost:5187
+###You may have to adjust the host address
+@GitIssueManager_HostAddress = https://localhost:7040
 
-GET {{GitIssueManager_HostAddress}}/weatherforecast/
+### REPLACE [your-bearer-key] with your actual api key (GitHub or GitLab)
+### REPLACE [owner] with the owner of the repository
+### REPLACE [repository] with the name of the repository
+### REPLACE [issue-id] with the the issue number
+### Supported providers are: GitHub, GitLab
+@bearerToken = [your-bearer-key]
+@issueId = [issue-id]
+@repository = [owner]/[repository]
+@provider = GitHub
+
+
+### Create new issue
+POST {{GitIssueManager_HostAddress}}/issues/
 Accept: application/json
+Content-Type: application/json
+User-Agent: GitIssueManager/1.0
+Authorization: Bearer {{bearerToken}}
 
-###//TODO: MAKE SOME VALID REQUESTS
+{
+  "provider": "{{provider}}",
+  "repository": "{{repository}}",
+  "title": "Test Issue",
+  "description": "Test description"
+}
+
+### Modify existing issue
+PUT {{GitIssueManager_HostAddress}}/issues/{{issueId}}
+Accept: application/json
+Content-Type: application/json
+User-Agent: GitIssueManager/1.0
+Authorization: Bearer {{bearerToken}}
+
+{
+  "provider": "{{provider}}",
+  "repository": "{{repository}}",
+  "title": "Updated Issue Title",
+  "description": "Updated description of the issue."
+}
+
+### Close existing issue
+PATCH {{GitIssueManager_HostAddress}}/issues/{{issueId}}/close
+Accept: application/json
+Content-Type: application/json
+User-Agent: GitIssueManager/1.0
+Authorization: Bearer {{bearerToken}}
+
+{
+  "provider": "{{provider}}",
+  "repository": "{{repository}}"
+}

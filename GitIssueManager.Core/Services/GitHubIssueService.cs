@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text;
 using GitIssueManager.Core.Services.Interfaces;
-using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using GitIssueManager.Core.Models;
+using GitIssueManager.Core.Helpers;
 
 namespace GitIssueManager.Core.Services
 {
@@ -16,19 +16,12 @@ namespace GitIssueManager.Core.Services
         {
             _httpClient = httpClient;
             _httpContextAccessor = httpContextAccessor;
-
-            //TODO: MOVE TO SOME HELPER CLASS PROBABLY
-            string? authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
-            if (!string.IsNullOrEmpty(authHeader))
-            {
-                _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GitIssueManager", "1.0"));
-                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authHeader.Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase));
-            }
+            _httpClient.ApplyAuthHeaders(_httpContextAccessor.HttpContext);
         }
 
         public async Task CreateIssueAsync(IssueRequestModel requestModel)
         {
-            string url = $"https://api.github.com/repos/{requestModel.Repository}/issues";
+            string url = $"https://api.github.com/repos/{requestModel.Repository}/issues"; //TODO: MOVE THE BASE URL TO CONFIGURATION
 
             var content = new
             {
