@@ -1,6 +1,4 @@
-﻿using GitIssueManager.Core.Services.Interfaces;
-
-namespace GitIssueManager.Core.Models
+﻿namespace GitIssueManager.Core.Models
 {
     public class IssueRequestModel
     {

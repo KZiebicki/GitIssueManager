@@ -2,28 +2,32 @@
 using System.Text.Json;
 using System.Text;
 using GitIssueManager.Core.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
 
 namespace GitIssueManager.Core.Services
 {
     public class GitLabIssueService : IIssueService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _token;
-        private readonly string _baseUrl;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public GitLabIssueService(HttpClient httpClient)
+        public GitLabIssueService(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
-            _token = "";
-            _baseUrl = "https://gitlab.com/api/v4";
+            _httpContextAccessor = httpContextAccessor;
 
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+            //TODO: MOVE TO SOME HELPER CLASS PROBABLY
+            string? authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
+            if (!string.IsNullOrEmpty(authHeader))
+            {
+                _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GitIssueManager", "1.0"));
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authHeader.Replace("Bearer ", ""));//TODO: Bearer is case sensitive. Need fix
+            }
         }
 
         public async Task CreateIssueAsync(string repo, string title, string description)
         {
-            //TODO: CREATE GITLAB ACCOUNT AND TEST THIS STUFF
-            var url = $"{_baseUrl}/projects/{Uri.EscapeDataString(repo)}/issues";
+            var url = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(repo)}/issues";
 
             var content = new
             {
@@ -37,7 +41,7 @@ namespace GitIssueManager.Core.Services
 
         public async Task UpdateIssueAsync(string repo, int issueNumber, string title, string description)
         {
-            var url = $"{_baseUrl}/projects/{Uri.EscapeDataString(repo)}/issues/{issueNumber}";
+            var url = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(repo)}/issues/{issueNumber}";
 
             var content = new
             {
@@ -51,7 +55,7 @@ namespace GitIssueManager.Core.Services
 
         public async Task CloseIssueAsync(string repo, int issueNumber)
         {
-            var url = $"{_baseUrl}/projects/{Uri.EscapeDataString(repo)}/issues/{issueNumber}";
+            var url = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(repo)}/issues/{issueNumber}";
 
             var content = new
             {

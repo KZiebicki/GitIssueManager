@@ -1,8 +1,6 @@
 ﻿using GitIssueManager.Core.Models;
 using Microsoft.AspNetCore.Mvc;
-using GitIssueManager.Core.Services.Interfaces;
-using GitIssueManager.Core.Services;
-using Microsoft.AspNetCore.Authorization;
+using GitIssueManager.Core.Factories.Interfaces;
 
 namespace GitIssueManager.Api.Controllers
 {

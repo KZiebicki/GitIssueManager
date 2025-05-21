@@ -2,29 +2,31 @@
 using System.Text;
 using GitIssueManager.Core.Services.Interfaces;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Http;
 
 namespace GitIssueManager.Core.Services
 {
     public class GitHubIssueService : IIssueService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _token;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public GitHubIssueService(HttpClient httpClient)
+        public GitHubIssueService(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
-            //TODO: TOKEN AUTH
+            _httpContextAccessor = httpContextAccessor;
+
+            //TODO: MOVE TO SOME HELPER CLASS PROBABLY
+            string? authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
+            if (!string.IsNullOrEmpty(authHeader))
+            {
+                _httpClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("GitIssueManager", "1.0"));
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authHeader.Replace("Bearer ", ""));//TODO: Bearer is case sensitive. Need fix
+            }
         }
 
         public async Task CreateIssueAsync(string repo, string title, string description) //TODO: CHANGE TO IssueRequestModel
         {
-            //var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
-            //if (!string.IsNullOrEmpty(authHeader))
-            //{
-            //    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authHeader.Replace("Bearer ", ""));
-            //}
-
-
             var url = $"https://api.github.com/repos/{repo}/issues";
 
             var content = new
