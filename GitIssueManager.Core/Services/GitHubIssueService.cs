@@ -1,22 +1,70 @@
-﻿using GitIssueManager.Core.Services.Interfaces;
+﻿using System.Text.Json;
+using System.Text;
+using GitIssueManager.Core.Services.Interfaces;
+using System.Net.Http.Headers;
 
 namespace GitIssueManager.Core.Services
 {
-    public class GitHubIssueService : IIsueService
+    public class GitHubIssueService : IIssueService
     {
-        public Task CloseIssue(string repo, int issueNumber)
+        private readonly HttpClient _httpClient;
+        private readonly string _token;
+
+        public GitHubIssueService(HttpClient httpClient)
         {
-            throw new NotImplementedException();
+            _httpClient = httpClient;
+            //TODO: TOKEN AUTH
         }
 
-        public Task CreateIssue(string repo, string title, string description)
+        public async Task CreateIssueAsync(string repo, string title, string description) //TODO: CHANGE TO IssueRequestModel
         {
-            throw new NotImplementedException();
+            //var authHeader = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString();
+            //if (!string.IsNullOrEmpty(authHeader))
+            //{
+            //    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authHeader.Replace("Bearer ", ""));
+            //}
+
+
+            var url = $"https://api.github.com/repos/{repo}/issues";
+
+            var content = new
+            {
+                title,
+                body = description
+            };
+
+            var response = await _httpClient.PostAsync(url, AsJson(content));
+            response.EnsureSuccessStatusCode();
         }
 
-        public Task UpdateIssue(string repo, int issueNumber, string title, string description)
+        public async Task UpdateIssueAsync(string repo, int issueNumber, string title, string description)
         {
-            throw new NotImplementedException();
+            var url = $"https://api.github.com/repos/{repo}/issues/{issueNumber}";
+
+            var content = new
+            {
+                title,
+                body = description
+            };
+
+            var response = await _httpClient.PatchAsync(url, AsJson(content));
+            response.EnsureSuccessStatusCode();
         }
+
+        public async Task CloseIssueAsync(string repo, int issueNumber)
+        {
+            var url = $"https://api.github.com/repos/{repo}/issues/{issueNumber}";
+
+            var content = new
+            {
+                state = "closed"
+            };
+
+            var response = await _httpClient.PatchAsync(url, AsJson(content));
+            response.EnsureSuccessStatusCode();
+        }
+
+        private static StringContent AsJson(object obj) =>
+            new(JsonSerializer.Serialize(obj), Encoding.UTF8, "application/json");
     }
 }
