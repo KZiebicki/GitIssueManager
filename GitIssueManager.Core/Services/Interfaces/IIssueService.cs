@@ -4,8 +4,8 @@ namespace GitIssueManager.Core.Services.Interfaces
 {
     public interface IIssueService
     {
-        Task CreateIssueAsync(IssueRequestModel requestModel);
-        Task UpdateIssueAsync(int issueNumber, IssueRequestModel requestModel);
-        Task CloseIssueAsync(int issueNumber, IssueRequestModel requestModel);
+        Task<HttpResponseMessage> CreateIssueAsync(IssueRequestModel requestModel);
+        Task<HttpResponseMessage> UpdateIssueAsync(int issueNumber, IssueRequestModel requestModel);
+        Task<HttpResponseMessage> CloseIssueAsync(int issueNumber, IssueRequestModel requestModel);
     }
 }

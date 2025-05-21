@@ -19,7 +19,7 @@ namespace GitIssueManager.Core.Services
             _httpClient.ApplyAuthHeaders(_httpContextAccessor.HttpContext);
         }
 
-        public async Task CreateIssueAsync(IssueRequestModel requestModel)
+        public async Task<HttpResponseMessage> CreateIssueAsync(IssueRequestModel requestModel)
         {
             string url = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(requestModel.Repository)}/issues";
 
@@ -29,11 +29,10 @@ namespace GitIssueManager.Core.Services
                 description = requestModel.Description
             };
 
-            var response = await _httpClient.PostAsync(url, AsJson(content));
-            response.EnsureSuccessStatusCode();
+            return await _httpClient.PostAsync(url, AsJson(content));
         }
 
-        public async Task UpdateIssueAsync(int issueNumber, IssueRequestModel requestModel)
+        public async Task<HttpResponseMessage> UpdateIssueAsync(int issueNumber, IssueRequestModel requestModel)
         {
             string url = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(requestModel.Repository)}/issues/{issueNumber}";
 
@@ -43,11 +42,10 @@ namespace GitIssueManager.Core.Services
                 description = requestModel.Description
             };
 
-            var response = await _httpClient.PutAsync(url, AsJson(content));
-            response.EnsureSuccessStatusCode();
+            return await _httpClient.PutAsync(url, AsJson(content));
         }
 
-        public async Task CloseIssueAsync(int issueNumber, IssueRequestModel requestModel)
+        public async Task<HttpResponseMessage> CloseIssueAsync(int issueNumber, IssueRequestModel requestModel)
         {
             string url = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(requestModel.Repository)}/issues/{issueNumber}";
 
@@ -56,8 +54,7 @@ namespace GitIssueManager.Core.Services
                 state_event = "close"
             };
 
-            var response = await _httpClient.PutAsync(url, AsJson(content));
-            response.EnsureSuccessStatusCode();
+            return await _httpClient.PutAsync(url, AsJson(content));
         }
 
         private static StringContent AsJson(object obj) =>
