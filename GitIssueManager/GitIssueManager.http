@@ -2,7 +2,7 @@
 @GitIssueManager_HostAddress = https://localhost:7040
 
 ### REPLACE [your-bearer-key] with your actual api key (GitHub or GitLab)
-### REPLACE [owner] with the owner of the repository
+### REPLACE [owner] with the owner (or project for GitLab) of the repository
 ### REPLACE [repository] with the name of the repository
 ### REPLACE [issue-id] with the the issue number
 ### Supported providers are: GitHub, GitLab

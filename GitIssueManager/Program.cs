@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using GitIssueManager.Core.Factories.Interfaces;
 using GitIssueManager.Core.Factories;
+using Serilog;
 
 namespace GitIssueManager
 {
@@ -14,10 +15,14 @@ namespace GitIssueManager
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
-            //TODO: Logs (Serilog)
-            //TODO: Create documentation (README.md)
+            //Logs (Serilog)
+            builder.Host.UseSerilog((context, services, configuration) =>
+            {
+                configuration
+                    .ReadFrom.Configuration(context.Configuration)
+                    .ReadFrom.Services(services)
+                    .Enrich.FromLogContext();
+            });
 
             builder.Services.AddControllers()
             .AddJsonOptions(o =>
@@ -49,6 +54,8 @@ namespace GitIssueManager
             builder.Services.AddScoped<IIssueServiceFactory, IssueServiceFactory>();
 
             var app = builder.Build();
+
+            app.UseSerilogRequestLogging();
 
             app.UseSwagger();
             app.UseSwaggerUI();
