@@ -10,15 +10,15 @@ using Moq.Protected;
 
 namespace GitIssueManager.Tests
 {
-    public class GitHubIssueServiceTests
+    public class GitLabIssueServiceTests
     {
         private readonly Mock<HttpMessageHandler> _httpHandlerMock;
         private readonly HttpClient _httpClient;
         private readonly Mock<IHttpContextAccessor> _httpContextAccessor;
         private readonly IConfiguration _configuration;
-        private readonly GitHubIssueService _service;
+        private readonly GitLabIssueService _service;
 
-        public GitHubIssueServiceTests()
+        public GitLabIssueServiceTests()
         {
             _httpHandlerMock = new Mock<HttpMessageHandler>();
 
@@ -37,16 +37,16 @@ namespace GitIssueManager.Tests
 
             _configuration = new ConfigurationBuilder().Build();
 
-            _service = new GitHubIssueService(_httpClient, _httpContextAccessor.Object, _configuration);
+            _service = new GitLabIssueService(_httpClient, _httpContextAccessor.Object, _configuration);
         }
 
         [Fact]
-        public async Task CreateIssueAsync_GitHubSuccess()
+        public async Task CreateIssueAsync_GitLabSuccess()
         {
             var request = new IssueRequestModel
             {
-                Provider = IssueProvider.GitHub,
-                Repository = "user/repo",
+                Provider = IssueProvider.GitLab,
+                Repository = "group/repo",
                 Title = "New Issue",
                 Description = "Issue description"
             };
@@ -58,7 +58,7 @@ namespace GitIssueManager.Tests
                 Times.Once(),
                 ItExpr.Is<HttpRequestMessage>(req =>
                     req.Method == HttpMethod.Post &&
-                    req.RequestUri!.ToString() == "https://api.github.com/repos/user/repo/issues" &&
+                    req.RequestUri!.ToString().ToString().Contains("projects/group%2Frepo/issues") &&
                     req.Headers.Authorization!.Scheme == "Bearer" &&
                     req.Headers.Authorization.Parameter == "dummy-token" &&
                     req.Content!.Headers.ContentType!.MediaType == "application/json"
@@ -68,12 +68,12 @@ namespace GitIssueManager.Tests
         }
 
         [Fact]
-        public async Task UpdateIssueAsync_GitHubSuccess()
+        public async Task UpdateIssueAsync_GitLabSuccess()
         {
             var request = new IssueRequestModel
             {
-                Provider = IssueProvider.GitHub,
-                Repository = "user/repo",
+                Provider = IssueProvider.GitLab,
+                Repository = "group/repo",
                 Title = "Updated Title",
                 Description = "Updated description"
             };
@@ -84,20 +84,20 @@ namespace GitIssueManager.Tests
                 "SendAsync",
                 Times.Once(),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.Method == HttpMethod.Patch &&
-                    req.RequestUri!.ToString().EndsWith("/repos/user/repo/issues/42")
+                    req.Method == HttpMethod.Put &&
+                    req.RequestUri!.ToString().EndsWith("/projects/group%2Frepo/issues/42")
                 ),
                 ItExpr.IsAny<CancellationToken>()
             );
         }
 
         [Fact]
-        public async Task CloseIssueAsync_GitHubSuccess()
+        public async Task CloseIssueAsync_GitLabSuccess()
         {
             var request = new IssueRequestModel
             {
-                Provider = IssueProvider.GitHub,
-                Repository = "user/repo"
+                Provider = IssueProvider.GitLab,
+                Repository = "group/repo"
             };
 
             await _service.CloseIssueAsync(13, request);
@@ -106,8 +106,8 @@ namespace GitIssueManager.Tests
                 "SendAsync",
                 Times.Once(),
                 ItExpr.Is<HttpRequestMessage>(req =>
-                    req.Method == HttpMethod.Patch &&
-                    req.RequestUri!.ToString().EndsWith("/repos/user/repo/issues/13")
+                    req.Method == HttpMethod.Put &&
+                    req.RequestUri!.ToString().EndsWith("/projects/group%2Frepo/issues/13")
                 ),
                 ItExpr.IsAny<CancellationToken>()
             );
